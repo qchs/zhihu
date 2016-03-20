@@ -1,6 +1,10 @@
+'''
+1.不登录状态下打开知乎首页，F12后进入Network,勾选上Preseve log,Filter 选择Doc，此时可看到get请求里的Request Headers带有cookies，
+里面有_xsrf的值
 
+2.Filter 选择XHR,登陆知乎，注意右边Network里的变化,有一个email,打开，即可看到是post,并且登陆的网站也有，最下面是post需提供的表单信息
+'''
 import requests
-from bs4 import BeautifulSoup
 
 url = 'http://www.zhihu.com'
 login_url = 'http://www.zhihu.com/login/email'
@@ -21,14 +25,19 @@ header = {'Host': 'www.zhihu.com',
 
 s = requests.session() #session 会话对象可跨请求保持某些参数，也会在同一个Session实例发出的所有请求之间保持cookies
 r= s.get(url,headers = header)  #这里必须是url里的xsrf
-soup = BeautifulSoup(r.text,'lxml')
-body =soup.select('input[name="_xsrf"]')[0]
-xsrf=body.get('value')
-print(xsrf)
+print(r.cookies)
+#<RequestsCookieJar[<Cookie cap_id="...a" for .zhihu.com/>, <Cookie n_c=1 for .zhihu.com/>, <Cookie q_c1=...0 for .zhihu.com/>,
+# <Cookie _xsrf=2df75e9fee83f23cc3acf67ebd9d4ba5 for www.zhihu.com/>]>
+
+xsrf=r.cookies['_xsrf']#这里简化了_xsrf的获取,在像url的get请求中，Request Headers里的cookies就含有了_xsrf
+print(xsrf)#2df75e9fee83f23cc3acf67ebd9d4ba5
+
+email = input('Please input your email: ')
+password = input('Please input your password: ')#怎么在输入时直接变为####，不明文显示
 
 data={
-    'email':'####',
-    'password':'####',
+    'email':email,
+    'password':password,
     '_xsrf':xsrf,
     'remember_me':'true'
 }
@@ -37,7 +46,12 @@ login = s.post(login_url,headers = header, data = data)  #登陆的时候用到�
 print(login)  #<Response [200]>  成功
 my_cookie = login.cookies
 print(my_cookie)
+#<RequestsCookieJar[<Cookie n_c=...1 for .zhihu.com/>,
+# <Cookie unlock_ticket="...1" for .zhihu.com/>,
+#  <Cookie z_c0="..." for .zhihu.com/>]>
+
 
 test = 'https://www.zhihu.com/people/qing-nan-51-71'
 t = s.get(test,headers = header,cookies = my_cookie)#测试，用post登陆得到的cookies，是可以打开知乎用户的界面了
-print(t.text)
+print(t) #<Response [200]>
+print(t.url)  #https://www.zhihu.com/people/qing-nan-51-71  运行后打开，网页还是未登录状态，怎么能直接打开已登录的那个网页呢？
