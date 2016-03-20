@@ -27,8 +27,8 @@ xsrf=body.get('value')
 print(xsrf)
 
 data={
-    'email':'739378060@qq.com',
-    'password':'clhsyss302',
+    'email':'####',
+    'password':'####',
     '_xsrf':xsrf,
     'remember_me':'true'
 }
