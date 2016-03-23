@@ -11,7 +11,7 @@ login_url = 'http://www.zhihu.com/login/email'
 
 header = {'Host': 'www.zhihu.com',
           'Connection': 'keep-alive',
-          # 'Content-Length':'100', 这个不注释就会报错，还不知道原因
+          # 'Content-Length':'100', 这个不注释就会报错，还不知道原因。原因：长度需手动计算
            'Accept':'*/*',
            'User-Agent':' Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36',
            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -42,7 +42,9 @@ data={
     'remember_me':'true'
 }
 
-login = s.post(login_url,headers = header, data = data)  #登陆的时候用到的xsrf必须为url里的xsrf,而不是login_url里的xsrf,否则就被403
+login = s.post(login_url,headers = header, data = data)  
+#登陆的时候用到的xsrf必须为url里的xsrf,而不是login_url里的xsrf,否则就被403
+#因为login_url无法在浏览器打开，只会被重定向到url
 print(login)  #<Response [200]>  成功
 my_cookie = login.cookies
 print(my_cookie)
